@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceWatch — Face ID Sentinel</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"><i class="g1"></i><i class="g2"></i></div>
+
+<header id="topbar">
+  <div class="brand">
+    <div class="mark"><i></i></div>
+    <div class="brand-text">
+      <h1>FACEWATCH</h1>
+      <em>face id sentinel</em>
+    </div>
+  </div>
+  <div class="pills">
+    <span class="pill" id="enginePill" title="Recognition engine"><i class="dot"></i>engine: boot</span>
+    <span class="pill" id="fpsPill" title="Render framerate">— fps</span>
+    <span class="pill" id="facesPill" title="Faces in frame">0 faces</span>
+    <span class="pill" id="dbPill" title="Enrolled people / samples">db: 0·0</span>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn active" id="soundBtn" title="Sound on/off (S)" aria-label="Toggle sound">
+      <svg viewBox="0 0 24 24"><path id="soundPath" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+    </button>
+    <button class="icon-btn" id="pauseBtn" title="Pause / resume scanning (Space)" aria-label="Pause">
+      <svg viewBox="0 0 24 24"><path id="pausePath" d="M7 4h4v16H7zM13 4h4v16h-4z"/></svg>
+    </button>
+    <button class="icon-btn" id="helpBtn" title="How it works (?)" aria-label="Help">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.9 15.5h-1.8v-1.8h1.8v1.8zm1.6-6.3c-.5.6-1.2 1-1.5 1.6-.2.3-.2.7-.2 1.2h-1.8c0-.8.1-1.3.4-1.8.4-.7 1.1-1.1 1.5-1.7.4-.7.2-1.9-1.1-1.9-1 0-1.5.7-1.7 1.5l-1.7-.7C8.9 8 10 7 11.8 7c1.6 0 2.9.9 2.9 2.4 0 .7-.2 1.3-.6 1.8z"/></svg>
+    </button>
+    <a class="icon-btn" id="ghLink" href="https://github.com/aisac-id/facewatch" target="_blank" rel="noopener" title="Source on GitHub" aria-label="GitHub">
+      <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.4 2.9 8.2 6.8 9.5.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.4-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5A3.9 3.9 0 0 1 6.7 8.8a3.6 3.6 0 0 1 .1-2.7s.8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main id="layout">
+
+  <!-- ══════════ STAGE ══════════ -->
+  <section id="stageCol" class="enter-1">
+    <div id="stageBox">
+      <div id="stage">
+        <canvas id="view"></canvas>
+        <canvas id="hud"></canvas>
+        <div id="scanline" aria-hidden="true"></div>
+        <i class="corner c-tl"></i><i class="corner c-tr"></i><i class="corner c-bl"></i><i class="corner c-br"></i>
+        <div id="srcChip"><i class="dot"></i><span id="srcChipText">STANDBY</span></div>
+        <div id="clockChip">--:--:--</div>
+        <div id="alertFlash" aria-hidden="true"></div>
+        <div id="pauseVeil" class="hidden"><span>⏸ SCANNING PAUSED</span></div>
+        <div id="srcGate" class="hidden">
+          <div class="gate-card">
+            <h3 id="gateTitle">Source unavailable</h3>
+            <p id="gateMsg"></p>
+            <div class="gate-actions">
+              <button class="btn primary" id="gateRetry">Retry</button>
+              <button class="btn ghost" id="gateDemo">Demo feed</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sourceBar">
+      <label class="src-field">
+        <span>source</span>
+        <select id="sourceSel">
+          <option value="demo">Demo feed</option>
+          <option value="webcam">Webcam</option>
+          <option value="mjpeg">CCTV · MJPEG stream</option>
+          <option value="snapshot">CCTV · snapshot URL</option>
+        </select>
+      </label>
+      <label class="src-field hidden" id="deviceWrap">
+        <span>device</span>
+        <select id="deviceSel"><option value="">default</option></select>
+      </label>
+      <label class="src-field grow hidden" id="urlWrap">
+        <span>camera url</span>
+        <input type="url" id="urlInput" placeholder="http://192.168.1.10:8080/video" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="src-field small hidden" id="userWrap">
+        <span>user</span>
+        <input type="text" id="authUser" placeholder="optional" autocomplete="off">
+      </label>
+      <label class="src-field small hidden" id="passWrap">
+        <span>pass</span>
+        <input type="password" id="authPass" placeholder="optional" autocomplete="off">
+      </label>
+      <button class="btn primary hidden" id="connectBtn">Connect</button>
+      <span id="srcStatus">demo feed · local</span>
+    </div>
+  </section>
+
+  <!-- ══════════ SIDE DECK ══════════ -->
+  <aside id="side">
+
+    <section class="panel enter-2">
+      <div class="panel-head"><h2>Live matches</h2><span class="count" id="matchCount">0 in frame</span></div>
+      <div id="matchList"></div>
+      <p class="empty-note" id="matchEmpty">No faces in frame. Point a source at someone.</p>
+    </section>
+
+    <section class="panel enter-3">
+      <div class="panel-head"><h2>Face database</h2><span class="count" id="dbCount"></span></div>
+      <div class="db-actions">
+        <button class="btn primary" id="enrollBtn" title="Enroll the largest face currently in frame (E)">＋ Enroll face</button>
+        <button class="icon-btn" id="exportBtn" title="Export database as JSON" aria-label="Export database">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.6l3.3-3.3 1.4 1.4-5.7 5.7-5.7-5.7 1.4-1.4 3.3 3.3V3h2zM4 19h16v2H4z"/></svg>
+        </button>
+        <button class="icon-btn" id="importBtn" title="Import database JSON (merges by name)" aria-label="Import database">
+          <svg viewBox="0 0 24 24"><path d="M12 21V10.4l3.3 3.3 1.4-1.4L11 6.6l-5.7 5.7 1.4 1.4 3.3-3.3V21h2zM4 3h16v2H4z"/></svg>
+        </button>
+        <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+      </div>
+      <div id="personList"></div>
+      <p class="empty-note" id="dbEmpty">Nobody enrolled yet. Show a face to the camera and press <b>Enroll</b> — or open a person and upload photos.</p>
+    </section>
+
+    <section class="panel enter-4">
+      <div class="panel-head"><h2>Tuning</h2><span class="count">live</span></div>
+
+      <div class="slider-row">
+        <label for="threshold">Match threshold</label>
+        <input type="range" id="threshold" min="0.3" max="0.7" step="0.01" value="0.5">
+        <output>0.50</output>
+      </div>
+      <p class="hint">Lower = stricter (fewer false matches). Same person usually &lt; 0.5.</p>
+
+      <div class="slider-row">
+        <label for="interval">Scan interval</label>
+        <input type="range" id="interval" min="100" max="1000" step="25" value="250">
+        <output>250</output>
+      </div>
+      <div class="slider-row">
+        <label for="minConf">Min confidence</label>
+        <input type="range" id="minConf" min="0.1" max="0.9" step="0.05" value="0.4">
+        <output>0.40</output>
+      </div>
+
+      <div class="select-row"><label for="inputSize">Detector size</label>
+        <select id="inputSize">
+          <option value="224">224 · fast</option>
+          <option value="320" selected>320 · balanced</option>
+          <option value="416">416 · small faces</option>
+        </select>
+      </div>
+      <div class="select-row"><label for="boxStyle">Box style</label>
+        <select id="boxStyle">
+          <option value="brackets" selected>Target brackets</option>
+          <option value="solid">Solid frame</option>
+          <option value="minimal">Minimal line</option>
+        </select>
+      </div>
+
+      <div class="toggle-row"><label for="labelsTgl">Name labels</label><button class="toggle on" id="labelsTgl" role="switch" aria-checked="true"><i></i></button></div>
+      <div class="toggle-row"><label for="landmarksTgl">Landmark dots</label><button class="toggle on" id="landmarksTgl" role="switch" aria-checked="true"><i></i></button></div>
+      <div class="toggle-row"><label for="mirrorTgl">Mirror frame</label><button class="toggle" id="mirrorTgl" role="switch" aria-checked="false"><i></i></button></div>
+      <div class="toggle-row"><label for="alertTgl">Stranger alerts</label><button class="toggle on" id="alertTgl" role="switch" aria-checked="true"><i></i></button></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="resetTuneBtn">↺ Reset tuning</button>
+      </div>
+    </section>
+
+    <section class="panel enter-5">
+      <div class="panel-head">
+        <h2>Event log</h2>
+        <div class="log-tools">
+          <select id="logFilter" title="Filter events">
+            <option value="all">all</option>
+            <option value="known">known</option>
+            <option value="unknown">unknown</option>
+          </select>
+          <button class="mini-btn" id="clearLogBtn">clear</button>
+        </div>
+      </div>
+      <div id="logList"></div>
+      <p class="empty-note" id="logEmpty">Events appear here when a face is first seen or its identity changes.</p>
+    </section>
+
+    <footer class="panel-foot">
+      MIT © 2026 · all frames & faces stay on this device · <a href="https://github.com/aisac-id/facewatch" target="_blank" rel="noopener">contribute ↗</a>
+    </footer>
+  </aside>
+</main>
+
+<!-- enroll modal -->
+<div id="enrollModal" class="hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="modal-x" data-close="enrollModal" aria-label="Close">✕</button>
+    <h3>Enroll this face</h3>
+    <div class="enroll-grid">
+      <img id="enrollThumb" alt="Captured face">
+      <div class="enroll-fields">
+        <label class="field"><span>Add to</span>
+          <select id="enrollTarget"></select>
+        </label>
+        <label class="field" id="enrollNameWrap"><span>Name</span>
+          <input type="text" id="enrollName" placeholder="e.g. Budi Santoso" maxlength="48">
+        </label>
+        <label class="field" id="enrollNoteWrap"><span>Note (optional)</span>
+          <input type="text" id="enrollNote" placeholder="e.g. family · front door" maxlength="80">
+        </label>
+        <button class="btn ghost" id="enrollPhotoBtn">…or pick a photo instead</button>
+        <input type="file" id="enrollFile" accept="image/*" class="hidden">
+      </div>
+    </div>
+    <p class="modal-tip">Tip: enroll 2–4 samples per person from different angles & lighting for much better matching.</p>
+    <div class="modal-actions">
+      <button class="btn primary" id="enrollSave">✓ Save to database</button>
+      <button class="btn ghost" data-close="enrollModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- person modal -->
+<div id="personModal" class="hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="modal-x" data-close="personModal" aria-label="Close">✕</button>
+    <h3 id="personTitle">Person</h3>
+    <div class="enroll-fields">
+      <label class="field"><span>Name</span><input type="text" id="pName" maxlength="48"></label>
+      <label class="field"><span>Note</span><input type="text" id="pNote" maxlength="80"></label>
+    </div>
+    <div class="samples-head"><span>Samples</span><span class="count" id="pSampleCount"></span></div>
+    <div id="pSamples"></div>
+    <div class="modal-actions wrap">
+      <button class="btn primary" id="pSave">✓ Save changes</button>
+      <button class="btn ghost" id="pAddCam">＋ From camera</button>
+      <button class="btn ghost" id="pUpload">⤒ Upload photos</button>
+      <button class="btn danger" id="pDelete">🗑 Delete person</button>
+      <input type="file" id="pFiles" accept="image/*" multiple class="hidden">
+    </div>
+  </div>
+</div>
+
+<!-- help modal -->
+<div id="helpModal" class="hidden" role="dialog" aria-modal="true">
+  <div class="modal-card help">
+    <button class="modal-x" data-close="helpModal" aria-label="Close">✕</button>
+    <h3>FaceWatch in 60 seconds</h3>
+    <p><b>1 · Pick a source.</b> Demo feed works instantly. Webcam is one permission away. For CCTV, use your camera's <b>MJPEG stream URL</b> (e.g. <code>http://192.168.1.10:8080/video</code>) or a <b>JPEG snapshot URL</b> polled every second. Optional Basic-auth user/pass supported. RTSP-only cameras need a tiny gateway (go2rtc, ffmpeg) that re-exposes MJPEG — browsers can't speak RTSP.</p>
+    <p><b>2 · Build the database.</b> Press <b>Enroll face</b> to capture whoever is in frame, give them a name, done. Open a person to add more samples from the camera or upload photos — more samples, angles and lighting = far more reliable matches. Export/import the whole database as JSON.</p>
+    <p><b>3 · How matching works.</b> Every face becomes a 128-number "face fingerprint" (descriptor). FaceWatch measures the <b>euclidean distance</b> between the live fingerprint and every enrolled sample; the closest person wins. Distance below the <b>threshold</b> (default 0.50) = recognized; above = <span class="warn-text">UNKNOWN</span> with an alert. Same person typically scores 0.25–0.45, different people 0.6+.</p>
+    <p><b>Keys:</b> <kbd>Space</kbd> pause · <kbd>E</kbd> enroll · <kbd>M</kbd> mirror · <kbd>S</kbd> sound · <kbd>?</kbd> help · <kbd>Esc</kbd> close.</p>
+    <p class="privacy">🔒 <b>Privacy:</b> detection, recognition and the face database all run and live on this device (<code>chrome.storage.local</code>). The only network traffic is the camera stream you point it at. Nothing is uploaded, ever.</p>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="vendor/face-api.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
