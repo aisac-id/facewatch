@@ -1,4 +1,10 @@
+<div align="center">
+
+<img src="promo/logo.png" alt="FaceWatch logo" width="220">
+
 # FaceWatch — Face ID Sentinel
+
+</div>
 
 ![FaceWatch dashboard](docs/screenshot.png)
 
@@ -104,8 +110,23 @@ facewatch/
 │   └── audio.js         UI/alert sounds
 ├── vendor/              face-api.js + model weights
 ├── assets/              AI-generated demo subject
+├── promo/               logo, software box, poster, banner, promo video
 └── docs/                screenshots
 ```
+
+## Promo kit
+
+Brand assets live in [`promo/`](promo/) — free to reuse under the same MIT license:
+
+| Asset | File |
+|---|---|
+| Logo (1024×1024) | [`promo/logo.png`](promo/logo.png) |
+| Software box render | [`promo/software-box.png`](promo/software-box.png) |
+| Promo poster (2:3) | [`promo/poster.png`](promo/poster.png) |
+| Wide banner (16:9) | [`promo/banner.png`](promo/banner.png) |
+| Promo video (8s, 1080p, shared with ARCAM) | [`promo/promo.mp4`](promo/promo.mp4) |
+
+![FaceWatch banner](promo/banner.png)
 
 ## License
 
