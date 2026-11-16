@@ -4,6 +4,11 @@
 
 # FaceWatch — Face ID Sentinel
 
+<p align="center">
+  <img src="promo/banner.png" alt="Facewatch banner" width="100%">
+</p>
+
+
 </div>
 
 ![FaceWatch dashboard](docs/screenshot.png)
@@ -114,27 +119,14 @@ facewatch/
 └── docs/                screenshots
 ```
 
-## Promo kit
-
-Brand assets live in [`promo/`](promo/) — free to reuse under the same MIT license:
-
-| Asset | File |
-|---|---|
-| Logo (1024×1024) | [`promo/logo.png`](promo/logo.png) |
-| Software box render | [`promo/software-box.png`](promo/software-box.png) |
-| Promo poster (2:3) | [`promo/poster.png`](promo/poster.png) |
-| Wide banner (16:9) | [`promo/banner.png`](promo/banner.png) |
-| Promo video (8s, 1080p, shared with ARCAM) | [`promo/promo.mp4`](promo/promo.mp4) |
-
-![FaceWatch banner](promo/banner.png)
-
 ## License
 
 MIT © 2026 aisac-id. Bundled [face-api.js](https://github.com/justadudewhohacks/face-api.js) is MIT © justadudewhohacks. See [LICENSE](LICENSE).
 
+
 ---
 
-## Brand &amp; Promotion Kit
+## Brand & Promotion Kit
 
 Aset branding resmi **Facewatch** — logo, software box, poster, banner, dan materi sosial.
 Semua aset berada di folder [`promo/`](promo/) dan bebas dipakai untuk materi promosi proyek ini.
@@ -153,3 +145,5 @@ Semua aset berada di folder [`promo/`](promo/) dan bebas dipakai untuk materi pr
 | Social Preview | <img src="promo/social-preview.png" width="240"> | 1280×640 |
 | Feature Showcase | <img src="promo/feature-showcase.png" width="240"> | 1600×1000 |
 | Social Square | <img src="promo/social-square.png" width="120"> | 1080×1080 |
+
+**Video promosi:** [promo.mp4](promo/promo.mp4)
